@@ -33,7 +33,12 @@ using namespace fmt::literals;
 
 #define RUNTIME_PREFIX "SteamLinuxRuntime_"
 #define RUNTIME_VERSION "sniper"
-#define RUNTIME_ARCHIVE_NAME RUNTIME_PREFIX RUNTIME_VERSION ".tar.xz"
+#ifdef __aarch64__
+#define RUNTIME_ARCH_SUFFIX "-arm64"
+#else /* assume x86(_64) */
+#define RUNTIME_ARCH_SUFFIX ""
+#endif
+#define RUNTIME_ARCHIVE_NAME RUNTIME_PREFIX RUNTIME_VERSION RUNTIME_ARCH_SUFFIX ".tar.xz"
 
 #define RUNTIME_BASE_URL                                                                                               \
     "https://repo.steampowered.com/steamrt-images-" RUNTIME_VERSION "/snapshots/latest-container-runtime-public-beta"

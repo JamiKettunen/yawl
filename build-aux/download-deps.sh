@@ -22,6 +22,7 @@ LIBARCHIVE_VERSION="3.7.7"
 LIBCAP_VERSION="2.27" # Newer versions have useless Go stuff
 FMT_VERSION="11.2.0"
 
+HOST_ARCH="${HOST_ARCH:-$(uname -m)}"
 CMAKE="${CMAKE:-cmake}"
 MESON="${MESON:-meson}"
 NINJA="${NINJA:-ninja}"
@@ -60,10 +61,10 @@ case "$LIB" in
     zig)
         [ -d "zig" ] && rm -rf zig
         echo "Downloading zig-$ZIG_VERSION..."
-        download_file "https://ziglang.org/builds/zig-linux-x86_64-$ZIG_VERSION.tar.xz" "zig.tar.xz"
+        download_file "https://ziglang.org/builds/zig-linux-$HOST_ARCH-$ZIG_VERSION.tar.xz" "zig.tar.xz"
         tar -xf zig.tar.xz
         rm zig.tar.xz
-        mv zig-linux-x86_64-$ZIG_VERSION "zig/"
+        mv zig-linux-$HOST_ARCH-$ZIG_VERSION "zig/"
         ;;
 
     mimalloc)

@@ -37,7 +37,7 @@ rm -f "$build_prefix"/{musl-gcc,clang*,ld,zigcc*,zigcpp*,ar,ranlib} # clear out 
 AC_PATH_PROG([CCACHE], [ccache], [])
 
 AS_IF([test "x$with_asan" = "xyes"], [
-    EXTRA_CFLAGS="-Og -march=x86-64 -mtune=generic -ggdb -gdwarf-4 -fsanitize=address -Wno-backend-plugin"
+    EXTRA_CFLAGS="-Og -ggdb -gdwarf-4 -fsanitize=address -Wno-backend-plugin"
     export USING_MUSL="OFF"
 
     CCTESTPROG=clang
@@ -66,7 +66,7 @@ __EOF__
 $CCACHE $CXX_REAL -Qunused-arguments -fuse-ld=lld "\$@"
 __EOF__
 ], [
-    EXTRA_CFLAGS="-Os -march=x86_64 -mtune=x86_64 -Wl,--gc-sections,-s -static"
+    EXTRA_CFLAGS="-Os -Wl,--gc-sections,-s -static"
     export USING_MUSL="ON"
 
     AS_IF([test -z $ZIG], [
@@ -87,9 +87,10 @@ __EOF__
 
     AC_SUBST([ZIG_REALPATH],[$build_prefix/zig/zig])
 
+    arch="$(uname -m)"
     install -Dm755 /dev/stdin "$build_prefix"/zigcc-tobewrapped <<__EOF__
 #!/usr/bin/env sh
-zig cc -target x86_64-linux-musl -Qunused-arguments "\$@"
+zig cc -target $arch-linux-musl -Qunused-arguments "\$@"
 __EOF__
     AC_PATH_PROG([ZIGCC_REAL], [zigcc-tobewrapped])
     install -Dm755 /dev/stdin "$build_prefix"/zigcc <<__EOF__
@@ -102,7 +103,7 @@ __EOF__
 
     install -Dm755 /dev/stdin "$build_prefix"/zigcpp-tobewrapped <<__EOF__
 #!/usr/bin/env sh
-zig c++ -target x86_64-linux-musl -Qunused-arguments "\$@"
+zig c++ -target $arch-linux-musl -Qunused-arguments "\$@"
 __EOF__
     AC_PATH_PROG([ZIGCPP_REAL], [zigcpp-tobewrapped])
     install -Dm755 /dev/stdin "$build_prefix"/zigcpp <<__EOF__
@@ -201,7 +202,7 @@ export LD="$CC"
 shared_includes="-D_GNU_SOURCE -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 -I$deps_prefix/include"
 shared_flags="$EXTRA_CFLAGS -flto=thin -ffunction-sections -fdata-sections \
     -fwrapv -fno-strict-aliasing -ffat-lto-objects -fno-exceptions -fPIC -fPIE \
-    -pthread -fcf-protection=full -fstack-clash-protection -fstack-protector-all \
+    -pthread -fstack-clash-protection -fstack-protector-all \
     -static-libgcc -L$deps_prefix/lib -Wl,-z,noexecstack \
     -Wno-date-time -Wl,-z,defs -Wl,-z,relro,-z,now -Wl,--as-needed"
 export CPPFLAGS="$shared_includes"
@@ -424,7 +425,7 @@ AC_LANG_PUSH([C++])
 # Shared flags/libraries for all targets
 CPPFLAGS="-D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE $NON_GLIB_CPPFLAGS $ALL_GLIB_CPPFLAGS"
 CXXFLAGS="-std=gnu++26 -flto=thin -pthread -fwrapv -fno-strict-aliasing \
-    -fcf-protection=full -fstack-protector -fstack-clash-protection \
+    -fstack-protector -fstack-clash-protection \
     -fstack-protector-all -Wall -Werror -Wextra -Wpedantic -Wno-unused-command-line-argument -Wno-gnu-include-next -Wno-gnu-zero-variadic-macro-arguments \
     -Wno-nullability-extension -Wno-c99-extensions -Wno-c23-extensions -Wno-zero-length-array -Wl,-z,noexecstack \
     -Wl,-z,defs -Wl,-z,relro,-z,now -Wl,--as-needed -pthread"

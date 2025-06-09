@@ -234,7 +234,7 @@ static RESULT verify_runtime(nonnull_charp runtime_path) {
     }
 
     autofree char *entry_point = nullptr;
-    join_paths(entry_point, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION "/_v2-entry-point");
+    join_paths(entry_point, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION RUNTIME_ARCH_SUFFIX "/_v2-entry-point");
 
     if (!is_exec_file(entry_point)) {
         LOG_ERROR("Runtime entry point not found: %s", entry_point);
@@ -284,7 +284,7 @@ static RESULT setup_runtime(const struct options *opts) {
     struct stat st;
 
     join_paths(archive_path, config::yawl_dir, RUNTIME_ARCHIVE_NAME);
-    join_paths(runtime_path, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION);
+    join_paths(runtime_path, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION RUNTIME_ARCH_SUFFIX);
 
     if (!(stat(runtime_path, &st) == 0 && S_ISDIR(st.st_mode))) {
         LOG_INFO("Installing runtime...");
@@ -410,8 +410,13 @@ static char *build_library_paths(nonnull_charp exec_path) {
 
 /* required for ancient Debian/Ubuntu */
 static char *build_mesa_paths(void) {
-    const char *mesa_paths[] = {"/usr/lib/i386-linux-gnu/dri",
+    const char *mesa_paths[] = {
+#ifdef __aarch64__ /* TODO: needed?! */
+				"/usr/lib/aarch64-linux-gnu/dri",
+#else /* assume x86(_64) */
+                                "/usr/lib/i386-linux-gnu/dri",
                                 "/usr/lib/x86_64-linux-gnu/dri",
+#endif
                                 "/usr/lib/dri",
                                 "/usr/lib32/dri",
                                 "/usr/lib64/dri",
@@ -758,7 +763,7 @@ int main(int argc, char *argv[]) {
     }
 
     char *entry_point = nullptr;
-    join_paths(entry_point, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION "/_v2-entry-point");
+    join_paths(entry_point, config::yawl_dir, RUNTIME_PREFIX RUNTIME_VERSION RUNTIME_ARCH_SUFFIX "/_v2-entry-point");
     if (!is_exec_file(entry_point)) {
         LOG_ERROR("Runtime entry point not found: %s", entry_point);
         return 1;

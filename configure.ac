@@ -23,7 +23,7 @@ AS_IF([test "x$with_asan" = "xyes"], [depdir="deps-asan"], [depdir="deps"])
 deps_builddir="$top_srcdir_actual/$depdir/build"
 deps_prefix="$top_srcdir_actual/$depdir/prefix"
 build_prefix="$top_srcdir_actual/$depdir/yawl"
-mkdir -p "$deps_builddir" "$deps_prefix"/{lib,include} "$build_prefix/"{lib,include} "$PWD/dist/bin"
+mkdir -p "$deps_builddir" "$deps_prefix/lib" "$deps_prefix/include" "$build_prefix/lib" "$build_prefix/include" "$PWD/dist/bin"
 
 export cch="$am_aux_dir/muslconfig.cache"
 AC_SUBST([cch])
@@ -72,7 +72,7 @@ __EOF__
     AS_IF([test -z $ZIG], [
         AS_IF([test ! -x "${build_prefix}/zig/zig"], [
             AC_MSG_NOTICE([Downloading zig])
-            sh $am_aux_dir/download-deps.sh zig "$build_prefix" "${build_prefix}/zig" || AC_MSG_ERROR([Failed to install zig])
+            $am_aux_dir/download-deps.sh zig "$build_prefix" "${build_prefix}/zig" || AC_MSG_ERROR([Failed to install zig])
         ])
     ])
 
@@ -229,7 +229,7 @@ export CMAKE NINJA MESON
 # Download and build mimalloc (to replace the slow musl malloc)
 if ! test -f "$build_prefix/lib/mimalloc.o" && ! test "x$with_asan" = "xyes"; then
     AC_MSG_NOTICE([Building mimalloc])
-    sh $am_aux_dir/download-deps.sh mimalloc "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build mimalloc])
+    $am_aux_dir/download-deps.sh mimalloc "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build mimalloc])
     cp $deps_prefix/lib/*malloc* $build_prefix/lib/
     cp -r $deps_prefix/include/*malloc* $build_prefix/include/
 fi
@@ -248,49 +248,49 @@ AC_SUBST([LD])
 # Download and build libunistring (needed for idn and psl)
 if ! test -f "$build_prefix/lib/libunistring.a"; then
     AC_MSG_NOTICE([Building libunistring])
-    sh $am_aux_dir/download-deps.sh libunistring "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libunistring])
+    $am_aux_dir/download-deps.sh libunistring "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libunistring])
     cp $deps_prefix/lib/libunistring.a $build_prefix/lib/
 fi
 
 # Download and build libidn2 (needed for curl/openssl)
 if ! test -f "$build_prefix/lib/libidn2.a"; then
     AC_MSG_NOTICE([Building libidn2])
-    sh $am_aux_dir/download-deps.sh libidn2 "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libidn2])
+    $am_aux_dir/download-deps.sh libidn2 "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libidn2])
     cp $deps_prefix/lib/libidn2.a $build_prefix/lib/
 fi
 
 # Download and build libpsl (needed for curl/openssl)
 if ! test -f "$build_prefix/lib/libpsl.a"; then
     AC_MSG_NOTICE([Building libpsl])
-    sh $am_aux_dir/download-deps.sh libpsl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libpsl])
+    $am_aux_dir/download-deps.sh libpsl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libpsl])
     cp $deps_prefix/lib/libpsl.a $build_prefix/lib/
 fi
 
 # Download and build libz
 if ! test -f "$build_prefix/lib/libz.a"; then
     AC_MSG_NOTICE([Building libz])
-    sh $am_aux_dir/download-deps.sh libz "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libz])
+    $am_aux_dir/download-deps.sh libz "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libz])
     cp $deps_prefix/lib/libz.a $build_prefix/lib/
 fi
 
 # Download and build xz
 if ! test -f "$build_prefix/lib/liblzma.a"; then
     AC_MSG_NOTICE([Building xz])
-    sh $am_aux_dir/download-deps.sh xz "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build xz])
+    $am_aux_dir/download-deps.sh xz "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build xz])
     cp $deps_prefix/lib/liblzma.a $build_prefix/lib/
 fi
 
 # Download and build zstd
 if ! test -f "$build_prefix/lib/libzstd.a"; then
     AC_MSG_NOTICE([Building zstd])
-    sh $am_aux_dir/download-deps.sh zstd "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build zstd])
+    $am_aux_dir/download-deps.sh zstd "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build zstd])
     cp $deps_prefix/lib/libzstd.a $build_prefix/lib/
 fi
 
 # Download and build openssl
 if ! test -f "$build_prefix/lib/libssl.a" || ! test -f "$build_prefix/lib/libcrypto.a"; then
     AC_MSG_NOTICE([Building openssl])
-    sh $am_aux_dir/download-deps.sh openssl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build openssl])
+    $am_aux_dir/download-deps.sh openssl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build openssl])
     cp $deps_prefix/lib/libssl.a $build_prefix/lib/
     cp $deps_prefix/lib/libcrypto.a $build_prefix/lib/
     cp -r $deps_prefix/include/openssl $build_prefix/include/
@@ -299,7 +299,7 @@ fi
 # Download and build libarchive
 if ! test -f "$build_prefix/lib/libarchive.a"; then
     AC_MSG_NOTICE([Building libarchive])
-    sh $am_aux_dir/download-deps.sh libarchive "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libarchive])
+    $am_aux_dir/download-deps.sh libarchive "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libarchive])
     cp $deps_prefix/lib/libarchive.a $build_prefix/lib/
     cp $deps_prefix/include/archive* $build_prefix/include/
 fi
@@ -307,14 +307,14 @@ fi
 # Download and build c-ares (required for curl to resolve hostnames properly vs musl's resolver)
 if ! test -f "$build_prefix/lib/libcares.a"; then
     AC_MSG_NOTICE([Building c-ares])
-    sh $am_aux_dir/download-deps.sh ares "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build c-ares (required to build curl)])
+    $am_aux_dir/download-deps.sh ares "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build c-ares (required to build curl)])
     cp $deps_prefix/lib/libcares.a $build_prefix/lib/
 fi
 
 # Download and build curl
 if ! test -f "$build_prefix/lib/libcurl.a"; then
     AC_MSG_NOTICE([Building curl])
-    sh $am_aux_dir/download-deps.sh curl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build curl])
+    $am_aux_dir/download-deps.sh curl "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build curl])
     cp $deps_prefix/lib/libcurl.a $build_prefix/lib/
     cp -r $deps_prefix/include/curl $build_prefix/include/
 fi
@@ -324,21 +324,21 @@ if ! test -f "$build_prefix/lib/libnotify.a" || ! test -f "$build_prefix/lib/lib
     # Download and build libffi (required for gdk-pixbuf)
     if ! test -f "$deps_prefix/lib/libffi.a"; then
         AC_MSG_NOTICE([Building libffi])
-        sh $am_aux_dir/download-deps.sh libffi "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libffi])
+        $am_aux_dir/download-deps.sh libffi "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libffi])
     fi
     # Download and build gdk-pixbuf (only required for libnotify)
     if ! test -f "$deps_prefix/lib/libgdk_pixbuf-2.0.a"; then
         AC_MSG_NOTICE([Building gdk-pixbuf])
-        sh $am_aux_dir/download-deps.sh gdk-pixbuf "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build gdk-pixbuf])
+        $am_aux_dir/download-deps.sh gdk-pixbuf "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build gdk-pixbuf])
     fi
     # Download and build json-glib
     if ! test -f "$deps_prefix/lib/libjson-glib-1.0.a"; then
         AC_MSG_NOTICE([Building json-glib])
-        sh $am_aux_dir/download-deps.sh json-glib "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build json-glib])
+        $am_aux_dir/download-deps.sh json-glib "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build json-glib])
     fi
     if ! test -f "$deps_prefix/lib/libnotify.a"; then
         AC_MSG_NOTICE([Building libnotify])
-        sh $am_aux_dir/download-deps.sh libnotify "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libnotify])
+        $am_aux_dir/download-deps.sh libnotify "$deps_builddir" "$deps_prefix" || AC_MSG_ERROR([Failed to build libnotify])
     fi
     cp $deps_prefix/lib/libnotify.a $build_prefix/lib/
     cp $deps_prefix/lib/libglib-2.0.a $build_prefix/lib/
@@ -359,7 +359,7 @@ fi
 # Download and build libcap (for nsenter functionality)
 if ! test -f "$build_prefix/lib/libcap.a"; then
     AC_MSG_NOTICE([Building libcap])
-    { sh $am_aux_dir/download-deps.sh libcap "$deps_builddir" "$deps_prefix" &&
+    { $am_aux_dir/download-deps.sh libcap "$deps_builddir" "$deps_prefix" &&
     cp $deps_prefix/lib/libcap.a $build_prefix/lib/ &&
     cp -r $deps_prefix/include/linux $build_prefix/include/ &&
     cp $deps_prefix/include/capability.h $build_prefix/include; } || AC_MSG_ERROR([Failed to build libcap])
@@ -368,7 +368,7 @@ fi
 # Download and build fmtlib headers (for better string formatting)
 if ! test -f "$build_prefix/include/fmt/format.h"; then
     AC_MSG_NOTICE([Building libfmt])
-    { sh $am_aux_dir/download-deps.sh fmt "$deps_builddir" "$deps_prefix" &&
+    { $am_aux_dir/download-deps.sh fmt "$deps_builddir" "$deps_prefix" &&
     cp $deps_prefix/lib/libfmt.a $build_prefix/lib/ &&
     cp -r $deps_prefix/include/fmt $build_prefix/include/; } || AC_MSG_ERROR([Failed to build libfmt])
 fi
@@ -376,14 +376,14 @@ fi
 # Now download the CA certificate bundle to embed and use with curl
 if ! test -f "$top_srcdir_actual/assets/external/cacert.pem"; then
     AC_MSG_NOTICE([Downloading CA certificate bundle for curl])
-    sh $am_aux_dir/download-deps.sh cacert "$top_srcdir_actual/assets/external/" "$top_srcdir_actual/assets/external/" ||
+    $am_aux_dir/download-deps.sh cacert "$top_srcdir_actual/assets/external/" "$top_srcdir_actual/assets/external/" ||
         AC_MSG_ERROR([Failed to download the curl embedded certificate bundle, download it from https://curl.se/ca/cacert.pem and place it in assets/])
 fi
 
 # Get the bwrap-userns-restrict file to embed for AppArmor integration too
 if ! test -f "$top_srcdir_actual/assets/external/bwrap-userns-restrict"; then
     AC_MSG_NOTICE([Downloading bwrap-userns-restrict to fix AppArmor])
-    sh $am_aux_dir/download-deps.sh bwrap "$top_srcdir_actual/assets/external/" "$top_srcdir_actual/assets/external/" ||
+    $am_aux_dir/download-deps.sh bwrap "$top_srcdir_actual/assets/external/" "$top_srcdir_actual/assets/external/" ||
         AC_MSG_ERROR([Failed to download the bwrap-userns-restrict file, find another source for it (taking it out of an Ubuntu/Debian package should work) and place it in assets/external/])
 fi
 
